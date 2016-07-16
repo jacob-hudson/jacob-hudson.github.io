@@ -1,6 +1,6 @@
 # Site settings
 name: Jacob A. Hudson
-description: "Edit headlineTechnology Enthusiast | Creative Problem Solver | Loves Tackling Challenges"
+description: "Technology Enthusiast | Creative Problem Solver | Loves Tackling Challenges"
 url: ""
 
 
@@ -33,7 +33,7 @@ avatar: yes
 #avatar_img_path: "imgs/avatar.jpg""
 # You can link to your GitHub image. That way it will get updated
 # automatically whenever you change your GitHub profile picture
-avatar_img_path: "https://avatars2.githubusercontent.com/u/17301305"
+avatar_img_path: "https://avatars0.githubusercontent.com/u/7270089?v=3&s=460"
 
 
 front_img: yes
