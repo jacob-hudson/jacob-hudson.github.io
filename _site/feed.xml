@@ -1,0 +1,1396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+ <title>The blog of Hao</title>
+ <link href="http://www.haoch.me/atom.xml" rel="self"/>
+ <link href="http://www.haoch.me"/>
+ <updated>2013-12-16T04:14:53+00:00</updated>
+ <id>http://www.haoch.me</id>
+ <author>
+   <name>Hao</name>
+   <email>cn.haochen@gmail.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>Ruby With RVM</title>
+   <link href="http://www.haoch.me/articles/ruby-with-rvm.html"/>
+   <updated>2013-12-13T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/ruby-with-rvm</id>
+   <content type="html">&lt;p&gt;&lt;strong&gt;RVM&lt;/strong&gt; is Ruby Version Manager allowing you to easily manage ruby environment of different versions and gemsets. It encourages to install ruby environments into user home directory &lt;code&gt;~/.rvm&lt;/code&gt; instead of global system accroding to specified requirements and provides convenient methods for switching and management.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://rvm.io/images/logo.png&quot; alt=&quot;https://rvm.io/images/logo.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;install-rvm&quot;&gt;Install RVM&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;dev&lt;/strong&gt;: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -sSL https://get.rvm.io | bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;withour autolibs&lt;/strong&gt;: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -sSL https://get.rvm.io | bash -s -- --autolibs=read-fail
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;stable&lt;/strong&gt;: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -sSL https://get.rvm.io | bash -s stable --ruby
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;More detail, please refer to &lt;a href=&quot;https://rvm.io/rvm/install&quot;&gt;https://rvm.io/rvm/install&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;update-rvm&quot;&gt;Update RVM&lt;/h1&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm get stable
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In case of problems try first with development version
+(maybe it’s already fixed):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm get head
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Very old installations might not support those update methods, just run the installer and reopen your terminal.&lt;/p&gt;
+
+&lt;h1 id=&quot;installing-ruby&quot;&gt;Installing Ruby&lt;/h1&gt;
+
+&lt;p&gt;Follow instructions from:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm requirements
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;List known rubies:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm list known
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Install Ruby:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm install 1.9.3                # Latest known patch level
+rvm install 1.9.3 -j 3           # Parallel compile, set to # of CPU cores
+rvm install 1.9.3 --patch falcon # Use a patch (falcon for performance)
+rvm install 1.9.2-p318           # Patchlevel 318
+rvm install rbx --1.9            # Rubinius with 1.9 mode set as default
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;List all rubies and gemsets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm list         # List rubies only
+rvm list gemsets # List rubies and gemsets
+rvm gemset list  # List gemsets for current ruby
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Selecting Ruby for work:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm system                 # For system ruby, with fallback to default 
+rvm use jruby              # For current session only
+rvm use --default 1.9.3    # For current and new sessions
+rvm use --ruby-version rbx # For current session and this project
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;RVM will automatically use a ruby and gemset when you &lt;code&gt;cd&lt;/code&gt; to a project directory.&lt;/p&gt;
+
+&lt;p&gt;Read more on project files:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://rvm.io/workflow/projects/#ruby-versions&quot;&gt;https://rvm.io/workflow/projects/#ruby-versions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;using-ruby-and-gems&quot;&gt;Using ruby and gems&lt;/h1&gt;
+
+&lt;p&gt;After selecting Ruby work as usual&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ruby -v
+gem install haml
+haml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Temporarily selecting another Ruby or gemset&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm 1.8.7 do gem install rspec      # in the given ruby
+rvm 1.8.7,1.9.2 do gem install haml # in this two rubies
+rvm @global do gem install gist     # in @global gemset of current ruby
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;gemsets&quot;&gt;Gemsets&lt;/h2&gt;
+
+&lt;p&gt;RVM by default allows creating multiple environments for one ruby - called &lt;em&gt;gemsets&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Gemsets can be specified together with ruby name using gemsets separator(@):&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ruby-1.9.3-p125@my-project&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;During installation of Ruby, RVM creates two gemsets:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;default - automatically selected when no @gemset specified: rvm use 1.9.3&lt;/li&gt;
+  &lt;li&gt;global  - super gemset, inherited by all other gemsets for the given ruby&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Working with gemsets:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rvm use 1.8.7                          # use the ruby to manage gemsets for
+rvm gemset create project_name         # create a gemset
+rvm gemset use project_name            # use a gemset in this ruby
+rvm gemset list                        # list gemsets in this ruby
+rvm gemset delete project_name         # delete a gemset
+rvm 1.9.1@other_project_name           # use another ruby and gemset
+rvm 1.9.3@_project --create --rvmrc    # use and create gemset &amp;amp; .rvmrc
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;install-rvm-for-all-users&quot;&gt;Install RVM for all users&lt;/h2&gt;
+&lt;p&gt;Discouraged; make sure to read &lt;a href=&quot;http://rvm.io/rvm/installation/&quot;&gt;http://rvm.io/rvm/installation/&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;trouble-shooting&quot;&gt;Trouble shooting&lt;/h1&gt;
+&lt;p&gt;A lot of resources is available:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;in your terminal: &lt;code&gt;rvm help&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://rvm.io/&quot;&gt;https://rvm.io/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Q1. getcwd: cannot access parent directories: No such file or directory&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; $sudo brew doctor
+ sudo: cannot get working directory
+ shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Reason&lt;/strong&gt;: The working directory you are currently in is deleted.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q2. rvm reinstall 1.9.3 need sudo&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  Checking requirements for osx.
+  Certificates in '/usr/local/etc/openssl/cert.pem' already are up to date.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Reason&lt;/strong&gt;: Need root permission to update ‘/usr/local/etc/openssl/cert.pem’ &lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q3. ruby extconf.rb error on mac osx&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt;: reinstall corresponding OSX Command Line Tools for Xcode &lt;a href=&quot;https://developer.apple.com/downloads/index.action&quot;&gt;https://developer.apple.com/downloads/index.action&lt;/a&gt; and reinstall your package again, if not work, reinstall rvm and ruby then retry&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Practical Pig Tutorial</title>
+   <link href="http://www.haoch.me/articles/practical-pig.html"/>
+   <updated>2013-12-13T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/practical-pig</id>
+   <content type="html">&lt;p&gt;&lt;strong&gt;TALK&lt;/strong&gt;: &lt;a href=&quot;http://haoch.me/talks/practical_pig&quot;&gt;http://haoch.me/talks/practical_pig&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://hadoop.apache.org/images/hadoop-logo.jpg&quot; alt=&quot;Hadoop&quot; /&gt;
+&lt;img width=&quot;60&quot; height=&quot;90&quot; alt=&quot;Pig&quot; src=&quot;http://hortonworks.com/wp-content/uploads/2013/10/pig.gif&quot; /&gt; &lt;/p&gt;
+
+&lt;h1 id=&quot;practical-pig&quot;&gt;Practical Pig&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;Agenda&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Why pig&lt;/li&gt;
+  &lt;li&gt;Components&lt;/li&gt;
+  &lt;li&gt;How it works with Map Reduce&lt;/li&gt;
+  &lt;li&gt;Pig Latin&lt;/li&gt;
+  &lt;li&gt;Advanced References and topics&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;why-pig&quot;&gt;Why Pig&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Map Reduce is very powerful, but:
+    &lt;ul&gt;
+      &lt;li&gt;requires a Java programmer&lt;/li&gt;
+      &lt;li&gt;re-invent common functionality (join, filter,etc)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Pig provides a higher level language&lt;/li&gt;
+  &lt;li&gt;Increases productivity
+    &lt;ul&gt;
+      &lt;li&gt;10 lines of Pig Latin = 200 lines of Java&lt;/li&gt;
+      &lt;li&gt;4 hours of writing in java took 15 mins in Pig Latin&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Face to no only java programmers&lt;/li&gt;
+  &lt;li&gt;Provides common operations like join, group,filter,sort&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;why-new-languages&quot;&gt;Why new languages&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Pig Latin is procedural, where SQL is declarative&lt;/li&gt;
+  &lt;li&gt;Pig Latin allows pipeline developers to decide where to checkpoint data in the pipeline&lt;/li&gt;
+  &lt;li&gt;Pig Latin allows the developer to select specific operator implementations directly rather than relying on the optimizer&lt;/li&gt;
+  &lt;li&gt;Pig Latin supports splits in the pipeline&lt;/li&gt;
+  &lt;li&gt;Pig Latin allows developers to insert their own code and existing binaries almost anywhere in the data pipeline&lt;/li&gt;
+  &lt;li&gt;Metadata not requireds, but used when available&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;how-pig-work&quot;&gt;How Pig Work&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Pig Engine&lt;/strong&gt;: provides an execution engine atop Hadoop
+    &lt;ul&gt;
+      &lt;li&gt;Removes need for users to tune Hadoop for their needs&lt;/li&gt;
+      &lt;li&gt;Insulates users from changes in Hadoop interfaces&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;$PIG_HOME/lib/pig.jar&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;parses&lt;/li&gt;
+      &lt;li&gt;checks&lt;/li&gt;
+      &lt;li&gt;optimizes&lt;/li&gt;
+      &lt;li&gt;plans execution&lt;/li&gt;
+      &lt;li&gt;submits jar to Hadoop&lt;/li&gt;
+      &lt;li&gt;monitors job progress &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;how-pig-is-being-used&quot;&gt;How Pig is being Used&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Web log processing&lt;/li&gt;
+  &lt;li&gt;Data processing for web search platforms&lt;/li&gt;
+  &lt;li&gt;Ad hoc queries across large data sets&lt;/li&gt;
+  &lt;li&gt;Rapid prototyping of algorithms for processing large data sets&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;performance&quot;&gt;Performance&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;Pig Mix&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;PigMix is a set of queries used test pig performance from release to release: &lt;a href=&quot;https://cwiki.apache.org/confluence/display/PIG/PigMix&quot;&gt;https://cwiki.apache.org/confluence/display/PIG/PigMix
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;data-types&quot;&gt;Data Types&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Scalar types:
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;int&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;long&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;double&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;chararray&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;bytearray&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Complex types:
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;map&lt;/strong&gt;: associative array&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;tuple&lt;/strong&gt;: ordered list of data, elements may be of any scalar or complex type&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;bag&lt;/strong&gt;: unordered collection of tuples&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;example&quot;&gt;Example&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Pig&lt;/strong&gt;: &lt;code&gt;$pig&lt;/code&gt; / &lt;code&gt;$pig -x local&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Grunt&lt;/strong&gt;: gun readline interactive tool&lt;/li&gt;
+  &lt;li&gt;Data
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://svn.apache.org/repos/asf/pig/trunk/tutorial/data/&quot;&gt;https://svn.apache.org/repos/asf/pig/trunk/tutorial/data/&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://raw.github.com/somoso/basedbible/master/bible.txt&quot;&gt;https://raw.github.com/somoso/basedbible/master/bible.txt&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://raw.github.com/somoso/basedbible/master/bible.txt&quot;&gt;http://SHAKESPEARElib.ru/SHAKESPEARE/sonnets.txt_Contents&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://raw.github.com/somoso/basedbible/master/bible.txt&quot;&gt;http://www.ccel.org/ccel/bible/kjv.txt&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;operation&quot;&gt;Operation&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Illustrate Operation&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;DESCRIBE&lt;/li&gt;
+      &lt;li&gt;EXPLAIN&lt;/li&gt;
+      &lt;li&gt;ILLUSTRATE&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Relation Operation&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;LOAD&lt;/li&gt;
+      &lt;li&gt;STORE&lt;/li&gt;
+      &lt;li&gt;FOREACH&lt;/li&gt;
+      &lt;li&gt;FILTER&lt;/li&gt;
+      &lt;li&gt;GROUP / COGROUP&lt;/li&gt;
+      &lt;li&gt;JOIN&lt;/li&gt;
+      &lt;li&gt;ORDER&lt;/li&gt;
+      &lt;li&gt;DISTINCT&lt;/li&gt;
+      &lt;li&gt;UNION&lt;/li&gt;
+      &lt;li&gt;SPLIT&lt;/li&gt;
+      &lt;li&gt;STREAM&lt;/li&gt;
+      &lt;li&gt;DUMP&lt;/li&gt;
+      &lt;li&gt;LIMIT&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;aggregation&quot;&gt;Aggregation&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;GROUP … BY …&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Count number of times each user appears in the excite data set;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;/test/pig/tutorial/data/excite-small.log&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;grpd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GROUP&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cntd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FOREACH&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;grpd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GENERATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;STORE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cntd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INTO&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;group_output&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;grouping&quot;&gt;Grouping&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Separate operation from applying aggregate functions&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Output : (key,bag), bag contains a tuple of every records with the key&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  alan     1
+  bob      9     =&amp;gt; alan, {(alan,1),(alan,3)}
+  alan     3        bob,{(bob,9)}
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;filtering&quot;&gt;Filtering&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;FILTER … BY …&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Get high frequency users whose count is great than 50&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;/test/pig/tutorial/data/excite-small.log&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;grpd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GROUP&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cntd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FOREACH&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;grpd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GENERATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;fltrd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cntd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;STORE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fltrd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INTO&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;filter_output&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;sorting&quot;&gt;Sorting&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;ORDER … BY …&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Sort high frequency users by frequency&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;/test/pig/tutorial/data/excite-small.log&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;grpd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GROUP&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cntd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FOREACH&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;grpd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GENERATE&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;fltrd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cntd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;srtd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ORDER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fltrd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;STORE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;srtd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INTO&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;sort_output&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;word-count&quot;&gt;Word Count&lt;/h1&gt;
+&lt;p&gt;Word count on King James Bible data and Shakespeare’s works&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;King James Bible
+    &lt;ul&gt;
+      &lt;li&gt;INPUT:’/test/bible-kjv.txt’&lt;/li&gt;
+      &lt;li&gt;OUTPUT: ‘bible_freq’&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Shakespeare’s works
+    &lt;ul&gt;
+      &lt;li&gt;INPUT:’/test/shakespeare_sonnets.txt’&lt;/li&gt;
+      &lt;li&gt;OUTPUT:’shake_freq’&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;word-count---continue&quot;&gt;Word Count - Continue&lt;/h1&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;load&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;/test/bible-kjv.txt&amp;#39;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;generate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flatten&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TOKENIZE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;chararray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;filter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;w+&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;group&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;D&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;generate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;store&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;E&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;into&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;bible_freq&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;load&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;/test/shakespeare_sonnets.txt&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;generate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flatten&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TOKENIZE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;chararray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;filter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;w+&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;group&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;D&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;generate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;store&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;E&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;into&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;shake_freq&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;join&quot;&gt;Join&lt;/h1&gt;
+&lt;p&gt;Find words that are in both the King James Version of Bible and Shakespeare’s sonnets&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;bible&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;bible_freq&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;shake&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;shake_freq&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cnt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;both&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;JOIN&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bible&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shake&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;STORE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;both&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INTO&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;both_words&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;anti-join&quot;&gt;Anti-Join&lt;/h1&gt;
+&lt;p&gt;Find words that are in the Bible that are not in Shakespeare.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;cogrp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;COGROUP&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;bible&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shake&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;noshake_grp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cogrp&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shake&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;noshake&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FOREACH&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;noshake_grp&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GENERATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FLATTEN&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bible&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;STORE&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;noshake&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INTO&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;noshake&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;cogrouping&quot;&gt;Cogrouping&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;A generalization of grouping&lt;/li&gt;
+  &lt;li&gt;Keys of two (or more ) inputs are collected&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;OUTPUT: (key,bag1,bag2,…), contains multi bags with records in the key&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  alan     1    alan     5 
+  bob      9    bob      9  =&amp;gt;  {alan, {(alan,1),(alan,3)},{alan,5}}
+  alan     3                    bob,{(bob,9),},{}
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;nested-operations&quot;&gt;Nested Operations&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;FOREACH .. { … }&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;FOREACH&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pipe&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;operation&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;operation&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;more&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;splitting&quot;&gt;Splitting&lt;/h1&gt;
+&lt;p&gt;Data flow need not be linear, can be split explicitly:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;data&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOAD&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;data&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;SPLIT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INTO&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;function&quot;&gt;Function&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;Piggy Bank&lt;/strong&gt;: &lt;a href=&quot;https://cwiki.apache.org/confluence/display/PIG/PiggyBank&quot;&gt;https://cwiki.apache.org/confluence/display/PIG/PiggyBank&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Eval function&lt;/strong&gt;: MAX, AVG, TKENIZE, etc.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Filter function&lt;/strong&gt;: IsEmpty, etc.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Load function&lt;/strong&gt;: TextLoader, etc.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Store function&lt;/strong&gt;: PigStorage, etc.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;user-defined-functions&quot;&gt;User Defined Functions&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Definition&lt;/strong&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;org.apache.pig.EvalFunc&lt;/li&gt;
+      &lt;li&gt;org.apache.pig.FilterFunc&lt;/li&gt;
+      &lt;li&gt;org.apache.pig.LoadFunc&lt;/li&gt;
+      &lt;li&gt;org.apache.pig. StoreFunc  &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Usage&lt;/strong&gt;:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt; 
+&lt;span class=&quot;n&quot;&gt;REGISTER&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;pig-udf.jar&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ebay&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hchen9&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pig&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MyUDF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;DEFINE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;myUDF&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ebay&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hchen9&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pig&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MyUDF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BY&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;myUDF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;stream&quot;&gt;Stream&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;STREAM … THROUGH script AS schema&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt; 
+&lt;span class=&quot;n&quot;&gt;STREAM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;THROUGH&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`cut -f 2`&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;schema&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+     
+&lt;span class=&quot;n&quot;&gt;DEFINE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;script&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`script_file_name`&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SHIP&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;script_file_path&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;STREAM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;THROUGH&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;script&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;schema&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;custom-load--store&quot;&gt;Custom Load &amp;amp; Store&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Default: data is tab separated UTF-8&lt;/li&gt;
+  &lt;li&gt;User can set delimiter&lt;/li&gt;
+  &lt;li&gt;Customize load/store function to handle de/serialization of the data&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;parameter&quot;&gt;Parameter&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Parameters:
+    &lt;ul&gt;
+      &lt;li&gt;Command arguments: pig -param input=&amp;lt;INPUT&amp;gt;&lt;/li&gt;
+      &lt;li&gt;Parameters file : pig -param_file &amp;lt;PARAM_FILE&amp;gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Usage: $input&lt;/li&gt;
+  &lt;li&gt;Example: &lt;a href=&quot;https://github.scm.corp.ebay.com/hchen9/capman-data/blob/master/hql/capman/hadoop_cpmn_env.param&quot;&gt;capman-data/hql/capman/hadoop_cpmn_env.param&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;macro&quot;&gt;Macro&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Definition&lt;/strong&gt;: &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt; 
+&lt;span class=&quot;n&quot;&gt;DEFINE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;macro&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RETURNS&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ret_val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ret_val&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Import&lt;/strong&gt;:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt; 
+&lt;span class=&quot;n&quot;&gt;IMPORT&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;pig.macro&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;macr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Example: &lt;a href=&quot;https://github.scm.corp.ebay.com/hchen9/capman-data/blob/master/hql/capman/hadoop_cpmn_macro.pig&quot;&gt;capman-data/hql/capman/hadoop_cpmn_macro.pig&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;case-study&quot;&gt;Case Study&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Hadoop mapreduce job summary log : /logs/hadoop-mapreduce.jobsummary.log.2013-10-02
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://github.scm.corp.ebay.com/hchen9/hadoop-learning/blob/master/pig/src/main/pig/log_spliter.py&quot;&gt;log_spliter.py&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://github.scm.corp.ebay.com/hchen9/hadoop-learning/blob/master/pig/src/main/pig/jobsummary_log.pig&quot;&gt;job_summary_log.pig&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Capman data process: &lt;a href=&quot;https://github.scm.corp.ebay.com/hchen9/capman-data&quot;&gt;capman-data&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;advanced-references--topics&quot;&gt;Advanced References &amp;amp; Topics&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Why Pig Latin instead of SQL&lt;br /&gt; &lt;a href=&quot;http://infolab.stanford.edu/~olston/publications/sigmod08.pdf&quot;&gt;http://infolab.stanford.edu/~olston/publications/sigmod08.pdf&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Pig performance&lt;br /&gt;&lt;a href=&quot;https://cwiki.apache.org/confluence/display/PIG/PigMix&quot;&gt;https://cwiki.apache.org/confluence/display/PIG/PigMix&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Pig UDF Manual &lt;br /&gt;&lt;a href=&quot;http://wiki.apache.org/pig/UDFManual&quot;&gt;http://wiki.apache.org/pig/UDFManual&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Programming Pig &lt;br /&gt;&lt;a href=&quot;http://www.amazon.com/Programming-Pig-Otx-Alan-Gates/dp/1449302645&quot;&gt;http://www.amazon.com/Programming-Pig-Otx-Alan-Gates/dp/1449302645&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Apache Pig Document &lt;br /&gt;&lt;a href=&quot;https://cwiki.apache.org/confluence/display/PIG/Index&quot;&gt;https://cwiki.apache.org/confluence/display/PIG/Index&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;thanks-you&quot;&gt;Thanks you&lt;/h1&gt;
+&lt;p&gt;Hao Chen&lt;/p&gt;
+
+&lt;p&gt;eBay Inc.&lt;br /&gt;
+&lt;a href=&quot;http://haoch.me&quot;&gt;haoch.me&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>2013 New Apache Hadoop Committer</title>
+   <link href="http://www.haoch.me/articles/new-hadoop-committer.html"/>
+   <updated>2013-12-13T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/new-hadoop-committer</id>
+   <content type="html">&lt;p&gt;&lt;img src=&quot;http://hadoop.apache.org/images/apache_feather.gif&quot; alt=&quot;Apache&quot; /&gt;
+&lt;img src=&quot;http://hadoop.apache.org/images/hadoop-logo.jpg&quot; alt=&quot;Apache Hadoop&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Jian He &lt;a href=&quot;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#116;&amp;#111;:&amp;#106;&amp;#104;&amp;#101;&amp;#064;&amp;#104;&amp;#111;&amp;#114;&amp;#116;&amp;#111;&amp;#110;&amp;#119;&amp;#111;&amp;#114;&amp;#107;&amp;#115;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&quot;&gt;&amp;#106;&amp;#104;&amp;#101;&amp;#064;&amp;#104;&amp;#111;&amp;#114;&amp;#116;&amp;#111;&amp;#110;&amp;#119;&amp;#111;&amp;#114;&amp;#107;&amp;#115;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/strong&gt;: YARN
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-L3pewRCyXjA--9h90XnR8KmxgEqce4=JuDdDA4jxtuQQ@mail.gmail.com%3E&quot;&gt;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-L3pewRCyXjA–9h90XnR8KmxgEqce4=JuDdDA4jxtuQQ@mail.gmail.com%3E&lt;/a&gt; &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Zhijie Shen &lt;a href=&quot;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#116;&amp;#111;:&amp;#122;&amp;#115;&amp;#104;&amp;#101;&amp;#110;&amp;#064;&amp;#104;&amp;#111;&amp;#114;&amp;#116;&amp;#111;&amp;#110;&amp;#119;&amp;#111;&amp;#114;&amp;#107;&amp;#115;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&quot;&gt;&amp;#122;&amp;#115;&amp;#104;&amp;#101;&amp;#110;&amp;#064;&amp;#104;&amp;#111;&amp;#114;&amp;#116;&amp;#111;&amp;#110;&amp;#119;&amp;#111;&amp;#114;&amp;#107;&amp;#115;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/strong&gt;: YARN and MapReduce
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-LWv7p6_DbUcGB83AiQ9JaXRbmrd2+09bd+14xNatoDdQ@mail.gmail.com%3E&quot;&gt;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-LWv7p6_DbUcGB83AiQ9JaXRbmrd2+09bd+14xNatoDdQ@mail.gmail.com%3E&lt;/a&gt; &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Ravi Prakash &lt;a href=&quot;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#116;&amp;#111;:&amp;#114;&amp;#097;&amp;#118;&amp;#105;&amp;#104;&amp;#111;&amp;#111;&amp;#064;&amp;#121;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&quot;&gt;&amp;#114;&amp;#097;&amp;#118;&amp;#105;&amp;#104;&amp;#111;&amp;#111;&amp;#064;&amp;#121;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/strong&gt;: Hadoop Core
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-L82jByizCkf7cuA==d5422WxYTZOSe2zSgFvDVFjj2pg@mail.gmail.com%3E&quot;&gt;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-L82jByizCkf7cuA==d5422WxYTZOSe2zSgFvDVFjj2pg@mail.gmail.com%3E&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Junping Du &lt;a href=&quot;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#116;&amp;#111;:&amp;#106;&amp;#100;&amp;#117;&amp;#064;&amp;#118;&amp;#109;&amp;#119;&amp;#097;&amp;#114;&amp;#101;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&quot;&gt;&amp;#106;&amp;#100;&amp;#117;&amp;#064;&amp;#118;&amp;#109;&amp;#119;&amp;#097;&amp;#114;&amp;#101;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/strong&gt;: Hadoop Core
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-KE0STaADiA55Nf779f_COE3U1Sx-bAtO6Q8rCf-A1mCw@mail.gmail.com%3E&quot;&gt;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-KE0STaADiA55Nf779f_COE3U1Sx-bAtO6Q8rCf-A1mCw@mail.gmail.com%3E&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Omkar Joshi &lt;a href=&quot;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#116;&amp;#111;:&amp;#111;&amp;#118;&amp;#106;&amp;#102;&amp;#111;&amp;#114;&amp;#117;&amp;#064;&amp;#103;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&quot;&gt;&amp;#111;&amp;#118;&amp;#106;&amp;#102;&amp;#111;&amp;#114;&amp;#117;&amp;#064;&amp;#103;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/strong&gt;: YARN
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-JTdiruihWt=TG1AdLT-2Hq+47RZvfc_UYXbEK23tgEvA@mail.gmail.com%3E&quot;&gt;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-JTdiruihWt=TG1AdLT-2Hq+47RZvfc_UYXbEK23tgEvA@mail.gmail.com%3E&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Mayank Bansal &lt;a href=&quot;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#116;&amp;#111;:&amp;#109;&amp;#097;&amp;#098;&amp;#097;&amp;#110;&amp;#115;&amp;#097;&amp;#108;&amp;#064;&amp;#103;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&quot;&gt;&amp;#109;&amp;#097;&amp;#098;&amp;#097;&amp;#110;&amp;#115;&amp;#097;&amp;#108;&amp;#064;&amp;#103;&amp;#109;&amp;#097;&amp;#105;&amp;#108;&amp;#046;&amp;#099;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/strong&gt;: YARN and MapReduce
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-JuAVmvXxiBFFqTCpvYWhV4X0hixYgT549Z34jHYxS6LA@mail.gmail.com%3E&quot;&gt;http://mail-archives.apache.org/mod_mbox/hadoop-general/201312.mbox/%3CCAMEEY-JuAVmvXxiBFFqTCpvYWhV4X0hixYgT549Z34jHYxS6LA@mail.gmail.com%3E&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Bash Options</title>
+   <link href="http://www.haoch.me/articles/bash-options.html"/>
+   <updated>2013-12-11T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/bash-options</id>
+   <content type="html">&lt;p&gt;getopt与getopts提供均可基于相同的规则来重新组合参数，来方便的获取命令行选项以及其值。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;getopt与getopts区别在于&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;getopt&lt;/code&gt;是个外部binary文件，作为外部命令调用，而&lt;code&gt;getopts&lt;/code&gt;是built-in bash 内置命令，可直接调用。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;getopts&lt;/code&gt; 的 shell 提供内置 &lt;strong&gt;OPTARG&lt;/strong&gt; 这个变量，&lt;code&gt;getopts&lt;/code&gt;会依次修改这个变量，可直接通过 &lt;strong&gt;$OPTARG&lt;/strong&gt; 读取参数值，但是&lt;code&gt;getopt&lt;/code&gt;则需要通过&lt;code&gt;set&lt;/code&gt;来重新定位参数 &lt;code&gt;$1&lt;/code&gt;(参数名),&lt;code&gt;$2&lt;/code&gt;（参数值，如存在），并使用&lt;code&gt;shift&lt;/code&gt;的方式依次获取。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# getopts&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; -- &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;getopt -o hi: -l &lt;span class=&quot;s2&quot;&gt;&amp;quot;help;input:&amp;quot;&lt;/span&gt; -n &lt;span class=&quot;s2&quot;&gt;&amp;quot;$0&amp;quot;&lt;/span&gt; -- &lt;span class=&quot;s2&quot;&gt;&amp;quot;$@&amp;quot;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$# &lt;/span&gt;-gt 0 &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;	case&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt; in:
+		-h&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;;&lt;span class=&quot;nb&quot;&gt;break&lt;/span&gt;;;
+		--&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;break&lt;/span&gt;;;
+	&lt;span class=&quot;k&quot;&gt;esac&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;	&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; 
+
+&lt;span class=&quot;c&quot;&gt;# getopts&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;getopts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;hi:&amp;quot;&lt;/span&gt; OPTION 
+&lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;	case&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;$OPTION&amp;quot;&lt;/span&gt; in
+		-h&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;$OPTARG&amp;quot;&lt;/span&gt;;;
+		&lt;span class=&quot;se&quot;&gt;\?&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;exit &lt;/span&gt;1;;
+	esace
+&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当参数值中包含空格时，对于&lt;code&gt;getopt&lt;/code&gt;会识别为多个参数，因此，这种情况下只能用&lt;code&gt;getopts&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;一般情况而言，优先选择&lt;code&gt;getopts&lt;/code&gt;，当需要定义更复杂的参数规则，如长短参数等时，需使用&lt;code&gt;getopt&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;getopt&quot;&gt;getopt&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Execute getopt&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;ARGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;getopt -o&lt;span class=&quot;s2&quot;&gt;&amp;quot;123:&amp;quot;&lt;/span&gt;-l&lt;span class=&quot;s2&quot;&gt;&amp;quot;one,two,three:-n $0&amp;quot;&lt;/span&gt;--&lt;span class=&quot;s2&quot;&gt;&amp;quot;$@&amp;quot;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#Bad arguments&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$?&lt;/span&gt; -ne0 &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;;
+&lt;span class=&quot;k&quot;&gt;then&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;	&lt;/span&gt;exit1
+&lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# A little magic&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;eval set&lt;/span&gt; -- &lt;span class=&quot;s2&quot;&gt;&amp;quot;$ARGS&amp;quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Now go through all the options&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;;
+&lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;	case&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;$1&amp;quot;&lt;/span&gt; in
+    -1|--one&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      	&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Uno&amp;quot;&lt;/span&gt;
+      	&lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;;;
+
+    -2|--two&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      	&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Dos&amp;quot;&lt;/span&gt;
+      	&lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;;;
+       
+    -3|--three&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      	&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Tres&amp;quot;&lt;/span&gt;
+
+      	&lt;span class=&quot;c&quot;&gt;# We need to take the option argument&lt;/span&gt;
+      	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; -n&lt;span class=&quot;s2&quot;&gt;&amp;quot;$2&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;;
+      	&lt;span class=&quot;k&quot;&gt;then&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;		&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Argument: $2&amp;quot;&lt;/span&gt;
+      	&lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;      	&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;;;
+
+    --&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;;&lt;span class=&quot;nb&quot;&gt;break&lt;/span&gt;;;
+    &lt;span class=&quot;k&quot;&gt;esac&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;getopts&quot;&gt;getopts&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;getopts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;123:&amp;quot;&lt;/span&gt; OPTION
+&lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;	case&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$OPTION&lt;/span&gt; in
+    	1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Uno&amp;quot;&lt;/span&gt;;;
+    	2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Dos&amp;quot;&lt;/span&gt;;;
+    	3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Tres: $OPTARG&amp;quot;&lt;/span&gt;;;
+ 	
+    	&lt;span class=&quot;c&quot;&gt;# Unknown option. No need for an error, getopts informs&lt;/span&gt;
+    	&lt;span class=&quot;c&quot;&gt;# the user itself.&lt;/span&gt;
+    	&lt;span class=&quot;se&quot;&gt;\?&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;exit &lt;/span&gt;1;;
+    	&lt;span class=&quot;k&quot;&gt;esac&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;    done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Slide Show (S9) - A Free Web Alternative to PowerPoint and Keynote in Ruby</title>
+   <link href="http://www.haoch.me/articles/slideshow.html"/>
+   <updated>2013-11-20T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/slideshow</id>
+   <content type="html">&lt;p&gt;Slideshow(S9) 是一个ruby gem，允许你使用类wiki标记语言(markdown)创建和编辑幻灯片，修改和阅读都非常方便。这个项目内置支持非gem “out-of-gem” 的无损向量图主题扩展，并提供许多很漂亮的&lt;a href=&quot;http://slideshow-s9.github.io/gallery.html&quot;&gt;主题库&lt;/a&gt;，当然也可以自己定义自己的主题。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://0.gravatar.com/avatar/3d0992109f4581ea0e898e37fb48af39?d=https%3A%2F%2Fidenticons.github.com%2F92a03b30888f1885fd275110ed3a6dda.png&amp;amp;r=x&amp;amp;s=150&quot; alt=&quot;Slideshow S9&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;开始使用&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;第一步，安装 &lt;a href=&quot;https://rubygems.org/gems/slideshow&quot;&gt;&lt;code&gt;slideshow&lt;/code&gt;&lt;/a&gt; gem,在终端作为命令中使用，为了更方便的管理ruby环境和gemsets，推荐使用&lt;a href=&quot;http://www.haoch.me/articles/ruby-with-rvm.html&quot;&gt;&lt;code&gt;rvm&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  $ gem install slideshow
+	
+  SYNOPSIS
+  slideshow [global options] command [command options] [arguments...]
+	
+  GLOBAL OPTIONS
+      -c, --config=PATH - Configuration Path (default: /home/hchen9/.slideshow)
+      --help            - Show this message
+      -q, --quiet       - Only show warnings, errors and fatal messages
+      --verbose         - (Debug) Show debug messages
+      --version         - Display the program version
+	
+  COMMANDS
+      about, a           - (Debug) Show more version info
+      build, b           - Build slideshow
+      help               - Shows a list of commands or help for one command
+      install, i         - Install template pack
+      list, ls, l        - List installed template packs
+      new, n             - Generate quick starter sample
+      plugins, plugin, p - (Debug) List plugin scripts in load path
+      test               - (Debug) Show global options, options, arguments for test command
+      update, u          - Update shortcut index for template packs 'n' plugins
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;第二步，创建初始slide，并使用类wiki标记语言（&lt;a href=&quot;http://daringfireball.net/projects/markdown/&quot;&gt;Markdown&lt;/a&gt; 或 &lt;a href=&quot;http://redcloth.org/textile&quot;&gt;Textile&lt;/a&gt;）编辑纯文本的slides,以 &lt;a href=&quot;https://raw.github.com/haoch/haoch.github.io/master/talks/practical_pig/index.md&quot;&gt;pig.md&lt;/a&gt; 为例&lt;/p&gt;
+
+    &lt;p&gt;可使用&lt;code&gt;slide&lt;/code&gt;或者手动创建，文件类型可以是md,markdown,textile等&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  slide new
+&lt;/code&gt;&lt;/pre&gt;
+
+    &lt;p&gt;使用 &lt;code&gt;#&lt;/code&gt; 或 &lt;code&gt;===&lt;/code&gt;（markdown）, 或者 &lt;code&gt;h1&lt;/code&gt;(textile)，即编译成HTML后对应 &lt;code&gt;h1&lt;/code&gt; 的元素，作为新的slide的开始，其内容为Slide的标题，示例内容如下:&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  Title: Practical Pig
+	
+  Practical Pig 
+  =============
+  Agenda
+	
+  * Why pig
+  * Components
+  * How it works with Map Reduce
+  * Pig Latin
+  * Advanced References and topics
+	
+  Why Pig
+  =======
+  * Map Reduce is very powerful, but:
+      - requires a Java programmer
+      - re-invent common functionality (join, filter,etc)
+  * Pig provides a higher level language
+&lt;/code&gt;&lt;/pre&gt;
+
+    &lt;p&gt;或者&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  Title: Practical Pig
+
+  h1. Practical Pig 
+	
+  Agenda
+	
+  * Why pig
+  * Components
+  * How it works with Map Reduce
+  * Pig Latin
+  * Advanced References and topics
+	
+  h1. Why Pig
+
+  * Map Reduce is very powerful, but:
+      - requires a Java programmer
+      - re-invent common functionality (join, filter,etc)
+  * Pig provides a higher level language
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;第三步，使用&lt;code&gt;slideshow build&lt;/code&gt;命令编译slides，&lt;code&gt;-t&lt;/code&gt;后跟参数指定主题，默认主题为&lt;a href=&quot;http://slideshow-s9.github.io/gallery.html&quot;&gt;S6&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  $ slideshow build index
+
+  =&amp;gt; Preparing slideshow 'index.html'...
+  =&amp;gt; Done.
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;第四步，浏览器中打开生成的html文件即可预览 (实例：&lt;a href=&quot;http://www.haoch.me/talks/practical_pig/#slide2&quot;&gt;Pratical Pig&lt;/a&gt;，基于&lt;a href=&quot;https://github.com/slideshow-s9/slideshow-google-html5-slides&quot;&gt;google-html5&lt;/a&gt;主题: &lt;code&gt;slideshow build index -t g5&lt;/code&gt;);&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;使用主题模板&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;选择:&lt;a href=&quot;http://slideshow-s9.github.io/gallery.html&quot;&gt;Slideshow (S9) Template Gallery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  slideshow install g5
+&lt;/code&gt;&lt;/pre&gt;
+
+    &lt;p&gt;或&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  $ cd ~/.slideshow/templates
+  $ git clone git://github.com/slideshow-s9/slideshow-google-html5-slides.git
+&lt;/code&gt;&lt;/pre&gt;
+
+    &lt;p&gt;查看已安装模板&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  $ slideshow list
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  $ slideshow build tutorial -t g5
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;相关资料&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Slideshow (S9): &lt;a href=&quot;http://slideshow-s9.github.io&quot;&gt;http://slideshow-s9.github.io&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Template Gallery:&lt;a href=&quot;http://slideshow-s9.github.io/gallery.html&quot;&gt;http://slideshow-s9.github.io/gallery.html&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Github Repository : &lt;a href=&quot;https://github.com/slideshow-s9&quot;&gt;https://github.com/slideshow-s9&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Markdown: &lt;a href=&quot;http://daringfireball.net/projects/markdown/syntax&quot;&gt;http://daringfireball.net/projects/markdown/syntax&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Textile: &lt;a href=&quot;http://redcloth.org/textile/&quot;&gt;http://redcloth.org/textile/&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;reStructuredText:　&lt;a href=&quot;http://docutils.sourceforge.net/rst.html&quot;&gt;http://docutils.sourceforge.net/rst.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;q--a&quot;&gt;Q &amp;amp; A&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Group &amp;amp; Maillist: &lt;a href=&quot;https://groups.google.com/forum/#!forum/webslideshow&quot;&gt;https://groups.google.com/forum/#!forum/webslideshow&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Cron作业调度</title>
+   <link href="http://www.haoch.me/articles/intro-to-cron.html"/>
+   <updated>2013-10-22T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/intro-to-cron</id>
+   <content type="html">&lt;p&gt;本文主要涵盖cron的基本特性以及如何使用的介绍。&lt;/p&gt;
+
+&lt;h2 id=&quot;cron&quot;&gt;什么是Cron？&lt;/h2&gt;
+&lt;p&gt;Cron是指允许linux/unix用户自动（automatically）在特定时间或者日期执行命令或者脚本（即命令的组合）的一个程序。一般而言，被用作系统管理命令，比如makewhatis，为man -k命令创建搜索数据库， 或者运行备份脚本，当然并非仅限于此。如今还有一个很普遍的用途是自动连接网路并下载你email。本文以 Vixie Cron为例，这是Paul Vixie开发的一个版本。&lt;/p&gt;
+
+&lt;h2 id=&quot;cron-1&quot;&gt;如何启动Cron&lt;/h2&gt;
+&lt;p&gt;Cron是一个守护进程(daemon)，只需要启动一次，然后一直保持休眠直到被调用。就像web服务器便是一个守护进程，启动后会一直休眠，当接收到页面请求时才会被唤醒。Con守护进程，即 &lt;strong&gt;crond&lt;/strong&gt; ,会在某个文件配置的某个时刻被唤醒，这个配置文件称之谓 &lt;strong&gt;crontabs&lt;/strong&gt; 。&lt;/p&gt;
+
+&lt;p&gt;在大多数linux发行版本中crond是自动安装并添加到启动脚本中。可通过以下命令查看，第一行显示crond正在运行：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ps aux | grep crond
+root      4258  0.0  0.0 117204  1264 ?        Ss   Sep26   1:02 crond
+hchen     8383  0.0  0.0 103244   876 pts/61   S+   21:58   0:00 grep crond
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;若cron被kill或者没有启动，可以将crond添加至启动脚本中，然后启动即可。若希望不重启，可以root帐户执行：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;crond
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;进程将自动后台运行，不用强制添加&amp;amp;，此外许多守护程序，如httpd和syslogd，修改杯之后需要重启， 但Vixie Cron不需要，一旦文件被crontab命令修改后便会自动载入，其他版本的可能是每分钟一次或者重启的时候。&lt;/p&gt;
+
+&lt;h2 id=&quot;cron-2&quot;&gt;使用cron&lt;/h2&gt;
+&lt;p&gt;用许多种方式使用cron。&lt;/p&gt;
+
+&lt;p&gt;在/etc目录中，你也许会找到一些子目录叫’cron.hourly’，’cron.daily’，’cron.weekly’ and ‘cron.monthly’,若将一个脚本，置于这些目录中，那么它将以每小时，每天，每周或者每个月的周期执行。&lt;/p&gt;
+
+&lt;p&gt;如果希望更灵活的，可以编辑一个crontab 文件（cron的配置文件）。主配置文件是/etc/crontab。在默认的RedHat安装中，crontab的内容如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;SHELL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/bin/bash
+&lt;span class=&quot;nv&quot;&gt;PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/sbin:/bin:/usr/sbin:/usr/bin
+&lt;span class=&quot;nv&quot;&gt;MAILTO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;root
+&lt;span class=&quot;nv&quot;&gt;HOME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/
+
+&lt;span class=&quot;c&quot;&gt;# For details see man 4 crontabs&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Example of job definition:&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# .---------------- minute (0 - 59)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# |  .------------- hour (0 - 23)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# |  |  .---------- day of month (1 - 31)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# |  |  |  |  |&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# *  *  *  *  * user-name command to be executed&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;第一部分,显而易见,设置cron的环境变量&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;SHELL&lt;/em&gt; cron 运行使用的shell,默认与 /etc/passwd 中指定的相同。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;PATH&lt;/em&gt; 包含cron的搜索路径。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;MAILTO&lt;/em&gt; 指定每个命令输出邮件给谁，无论状态报表或错误等。如果没有指定,输出将发给进程的拥有者。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;HOME&lt;/em&gt; 是指用作cron的home目录。默认与 /etc/passwd 相同。&lt;/p&gt;
+
+&lt;p&gt;第二部分较为复杂，也是crontab主要定制的内容。
+cron的条目是由一些列的字段组成，与/etc/passwd及其相似，只不过crontab是通过 _空白_分隔。通常每个条目有七个字段：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;minute hour dom month dow user cmd
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;table&gt;
+&lt;thead&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt; minute &lt;/td&gt;&lt;td&gt;控制一个小时的哪分钟运行，取值‘0’至‘59’之间&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt; hour &lt;/td&gt;&lt;td&gt;指定哪个小时运行，24小时制，取值0至23之间，0表示午夜&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt; dom &lt;/td&gt;&lt;td&gt;指定一个月的第几天（the Day of Month），如每个月的第十九天&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt; month &lt;/td&gt;&lt;td&gt;指定月份，可用数值类型（0-12），或与月份名称相同，如jan,feb,mar,apr等 &lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt; dow &lt;/td&gt;&lt;td&gt;指定星期几（the Week of Month），可用数值类型（0-12）和星期名（如 sun 等)，注意0与7均表示星期日&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt; user &lt;/td&gt;&lt;td&gt;指定命令运行的用户&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt; cmd &lt;/td&gt;&lt;td&gt;指定需要运行的命令，可包含多个字段和空格 &lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;等dow为0和7时均表示星期日。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;当dom和dow同时指定时，满足任何一种命令均会执行&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Vixiere Cron 同时也接受字段中使用列表，格式可以以“,”逗号分隔单个元素或者以“-”表示区间&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt; 59 11 * * 1,2,3,4,5 root cmd
+ 59 11 * * 1-5 root cmd
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;对于不需要指定值的字段，只需填入*。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;TODO&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;参考&lt;/h2&gt;
+&lt;p&gt;Book：&lt;strong&gt;Running Linux&lt;/strong&gt; (O’Reilly ISBN: 1-56592-469-X)&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>基于Github搭建Maven仓库</title>
+   <link href="http://www.haoch.me/articles/build-maven-repo-on-github.html"/>
+   <updated>2013-10-11T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/build-maven-repo-on-github</id>
+   <content type="html">&lt;p&gt;&lt;a href=&quot;http://maven.apache.org&quot;&gt;&lt;strong&gt;Maven&lt;/strong&gt;&lt;/a&gt; 是一个项目管理和构建自动化工具， &lt;strong&gt;Maven仓库&lt;/strong&gt; 是用于存放不同编译的artifacts和dependencies（依赖）的模块集合。严格而言，主要有两类仓库： &lt;strong&gt;local（本地）&lt;/strong&gt; 和 &lt;strong&gt;remote（远端）&lt;/strong&gt; 。&lt;/p&gt;
+
+&lt;p&gt;本地仓库存放本地安装的来自远端仓库的模块，可看作远端模块在本地的一份缓存，同时也包含本地编译尚未发布的模块。远端仓库指任何类型的仓库，能够通过许多不同的协议访问，如file://和http://，可以是“真正的”类似&lt;a href=&quot;http://repo.maven.org&quot;&gt;repo.maven.org&lt;/a&gt;由第三方提供的远程仓库用于提供公开模块下载，也可用于团队内部基于文件或者http服务器分享私有模块。&lt;/p&gt;
+
+&lt;p&gt;不论本地还是远端仓库都是满足相同的结构规则，因此远端模块很容易共享到任何地方，也可以同步到本地以离线环境下使用。一般而言这些仓库的构造对于maven用户是完全透明的。&lt;/p&gt;
+
+&lt;p&gt;一般而言，业界已经有许多成熟的maven仓库解决方案，如Nexus等，只需拥有一台服务器，并下载并安装maven仓库服务软件，然后启动即可。但对于个人开发者而言，若需要搭建用于分享和发布个人开发artifacts的公开maven仓库，选择之一自然是购买一台vps服务器，然后安装maven仓库服务软件，然而另外一种完全免费的选择则是完全基于github实现，本文将为您详细介绍后一种更为极客的实践方案。其原理是利用github的git push来发布artifects，利用github提供的公开raw服务提供对外下载服务。当向开源社区共享自己开发的artifects时，只需要提供模块pom信息和个人独一无二的仓库地址即可：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;https://raw.github.com/&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;github_account&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/maven/snapshot/
+https://raw.github.com/&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;github_account&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/maven/release/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;准备&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;申请Github帐号并配置ssh public key: &lt;a href=&quot;http://github.com&quot;&gt;http://github.com&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;安装Git工具: &lt;a href=&quot;http://git-scm.com&quot;&gt;http://git-scm.com&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;安装Maven工具: &lt;a href=&quot;http://maven.apache.org&quot;&gt;http://maven.apache.org&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;搭建过程&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; 利用&lt;a href=&quot;http://github.com&quot;&gt;github&lt;/a&gt;网站中创建一个新的仓库，记下仓库地址: &lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;git@github.com:&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;github_account&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/maven.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; 进入 ${HOME}/.m2/repository/,初始化git本地仓库，添加员段地址。&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~/.m2/repository
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git init
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git add remote origin git@github.com:hchen9/maven.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; 创建.gitignore 将文件匹配符&lt;code&gt;*&lt;/code&gt;加入其中， 并将.gitignore提交git本地仓库master分支&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;*&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; .gitignore
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git add .gitgnore
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git commit -m &lt;span class=&quot;s1&quot;&gt;&amp;#39;add .gitignore by ignoring all&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; 分别创建分支&lt;code&gt;snapshot&lt;/code&gt;与&lt;code&gt;release&lt;/code&gt;并push至远端仓库，用于发布不同状态的artifects，默认情况切换至&lt;code&gt;snapshot&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git branch snapshot
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git branch release
+
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git push origin snapshot
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git push origin release
+
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git checkout snapshot
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; 当开发完成发布新的artifects（例如com.github.${github_account}:${artifactId}:${version}）时，首先利用&lt;code&gt;mvn install&lt;/code&gt; 将artifects安装至本地maven仓库中 &lt;code&gt;~/.m2/repository/&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;project_root&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mvn install
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;然后，将需要发布对应版本的artifects所闻提交至本地git仓库中，然后push至对应的分支snapshot 或 release.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~/.m2/repository
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git add -f com/github/&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;github_account&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;artifactId&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git commit -m &lt;span class=&quot;s1&quot;&gt;&amp;#39;snapshot of com.github.${github_account}:${artifactId}:${version}&amp;#39;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git push origin snapshot
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;6.&lt;/strong&gt; 在pom.xml中使用maven artifact添加以下配置：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;project&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!--Add repositories--&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;repositories&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;repository&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;haoch-maven-snapshot-repository&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;haoch-maven-snapshot-repository&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;url&amp;gt;&lt;/span&gt;https://raw.github.com/${github_account}/maven/snapshot/&lt;span class=&quot;nt&quot;&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/repository&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;repository&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;haoch-maven-release-repository&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;haoch-maven-release-repository&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;url&amp;gt;&lt;/span&gt;https://raw.github.com/${github_account}/maven/release/&lt;span class=&quot;nt&quot;&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/repository&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/repositories&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Add dependencies --&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;${artifactId}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;com.github.${github_account}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;${version}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/project&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;w
+## 总结
+Github 目前为止也许是最好的代码托管服务和社交编程平台，拥有非常好的开源分享文化，在这里分享可复用的maven artifact自然也是最佳选择，Git原生提供的强大版本控制能力，在日常开发中必不可少，加上Github免费的git repository的静态raw访问服务，Github作为maven remote repository可以和日常开发工作有效的融合。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Java String 内存模型</title>
+   <link href="http://www.haoch.me/articles/java-string.html"/>
+   <updated>2013-09-28T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/java-string</id>
+   <content type="html">&lt;h2 id=&quot;string-&quot;&gt;String 对象与引用&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;new： 先创建创建对象，然后在string pool中查找是否值相同的对象，否则创建对应的string对象&lt;/li&gt;
+  &lt;li&gt;”“：直接查找，若有直接返回引用，否则创建并返回引用&lt;/li&gt;
+  &lt;li&gt;intern()：始终返回string object本身的引用&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;string--1&quot;&gt;String 连接&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;常量＋常量，内存中查找是否存在值相等的对象，存在则直接返回引用，否则创建新的对象&lt;/li&gt;
+  &lt;li&gt;常量＋变量，创建新的字符对象存储结果，并返回引用&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;string&quot;&gt;如何正确使用String?&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;不要使用new （new 每次都会创建一个新的对象,而不会寻找值相同的引用）。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用StringBuffer来做连接操作&lt;/p&gt;
+
+    &lt;p&gt;String 是immutable类，做连接操作时，都会创建临时的对象来保存中间结果，而StringBuffer 是mutable class, 不需要临时创建对象来保存结果，从而提高性能&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;StringBuffer vs StringBuilder&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;StringBuffer 是线程安全的(synchronized), StringBuilder 不是，因此在非多线程情景中，使用StringBuilder性能会更好&lt;/li&gt;
+      &lt;li&gt;StringBuilder类提供除了异步之外，完整兼容StringBuffer的API，这个类被设计用来在String缓存被单线程中时作为StringBuffer的替换。This class [StringBuilder] provides an API compatible with StringBuffer, but with no guarantee of synchronization. This class is designed for use as a drop-in replacement for StringBuffer in places where the string buffer was being used by a single thread (as is generally the case). Where possible, it is recommended that this class be used in preference to StringBuffer as it will be faster under most implementations. &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>A little cup of CoffeeScript</title>
+   <link href="http://www.haoch.me/articles/a-little-cup-of-coffee.html"/>
+   <updated>2013-09-21T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/a-little-cup-of-coffee</id>
+   <content type="html">&lt;p&gt;本文并非真正的介绍咖啡或者与咖啡有关的任何东西，而是对coffeescript这门语言的设计哲学，特性以及弊端等做一个简短的介绍。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;背景&lt;/h2&gt;
+
+&lt;p&gt;一直以来JavaScript认为一个浏览器的脚本语言而已，然后随着互联网的发展，前端技术的成熟，富客户端的应用越来越多，而且node js等server 端javascript框架的出现，使得javascript已然成为一种可应用于任何场景的语言，应用开发中JavaScript的开发比重也越来越大，然而JavaScript作为一门古老的语言，长期以来却未有过较大发展，然后其语法本身较为冗余罗嗦，编程过程中，需要书写大量重复代码，而且部分语法语义模糊怪异，模菱两可，很容易无意之间为代码质量留下隐患，同时JavaScript语法本身类c语言，语义性和可读性方面都较为古老，针对这些问题，更为现代的语言如ruby和python中均给出了更为幽雅的解决方案。因此，如果你希望如python或者ruby般幽雅的写javascript，coffeescript会是一个不错的选择。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;coffee-is-just-javascript&quot;&gt;Coffee is just JavaScript&lt;/h2&gt;
+
+&lt;p&gt;Coffee Script 并非是JavaScript的超集或者独立于javascript的语言，“Coffee script is just javascript“，更准确的说是javascript的子集，针对javascript的所有特性，取其精华，去其糟粕，进一步融合ruby和python的优秀语法加以适当改写而成。&lt;/p&gt;
+
+&lt;p&gt;其主要&lt;strong&gt;优点&lt;/strong&gt;在于:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Coffee Script 是编译的JavaScript&lt;/strong&gt;，coffeescript中可以原生使用任何javascript生态系统中前端framework和npm仓库中的package。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;引入了诸多Ruby和Python的优秀特性&lt;/strong&gt;，其中最大的特点之一是以类Python的强制缩进和空白分割语法，取代了大量花括号“｛｝”的使用，使代码层次更为清晰可读。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;更少代码量&lt;/strong&gt;， 经过coffeescript作者统计，使用coffeescript比使用javascript平均可减少三分之一到二分之一的代码量。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Javascript的精简子集&lt;/strong&gt;，去除了诸多费解的语法，以类自然语言如is，isnt，off，on等代替。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;其主要&lt;strong&gt;缺点&lt;/strong&gt;在于:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;运行较慢&lt;/strong&gt;, 因为coffee运行前需要先通过coffee解析器编译成javascript，然后再通过javascript引擎执行，因此一般而言，部署的时候会预先先将coffee script 编译成javascript。当然随着coffee解析器的进一步优化，运行速度的差距必然越来越小。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;运行时不方便调试&lt;/strong&gt;，除非是coffee解析器解析过程中语法错误，coffeescript运行时报错显示的是javascript的错误栈信息，这样可能不易于很快的定位出错误的地方。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;coffee-&quot;&gt;Coffee 语法&lt;/h2&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;1. &lt;strong&gt;强制缩进与空白分割&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;Coffee 语法的主要特点是利用了仿照Python的强制缩进和空白来做代码块分割。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;2. &lt;strong&gt;不使用分号&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;Javascript 中句尾分号可选，但是js引擎运行前是会自动补充上的，在CoffeeScript中强制不允许使用分号。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-3&quot;&gt;3. &lt;strong&gt;注释 #&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;类ruby和python的注释“＃”&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;单行注释&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;#comments&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;多行注释&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;###&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;comments&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;###&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;var&quot;&gt;4. 变量声明无需var&lt;/h4&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;hao&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;function&quot;&gt;5. 函数声明无需function&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;无参数函数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;hao&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;hao&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;hao&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;固定参数函数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;不固定参数函数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; 
+	&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;forEach&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;默认值参数函数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;section-4&quot;&gt;6. &lt;strong&gt;函数调用&lt;/strong&gt;,使用小括号是可选的&lt;/h4&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;扩展函数调用方法（至少传入一个参数）：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;parents()&lt;/li&gt;
+  &lt;li&gt;apply()&lt;/li&gt;
+  &lt;li&gt;call()&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;flow-control&quot;&gt;7. 流程控制(flow control)&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;-&amp;gt;&lt;/strong&gt;: 函数内部上下文，函数域外无效&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;=&amp;gt;&lt;/strong&gt;: 本地（local）上下文，可调用函数作用域以外变量&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;if … then … else … then …&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;后缀式条件判断: &lt;code&gt;it's code if heat &amp;lt; 5&lt;/code&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;!&lt;/strong&gt; &amp;amp; &lt;strong&gt;not&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;unless&lt;/strong&gt; &amp;amp; &lt;strong&gt;if not&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;is&lt;/strong&gt; &amp;amp; &lt;strong&gt;==&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;isnt&lt;/strong&gt; &amp;amp; &lt;strong&gt;!=&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;em&gt;more …&lt;/em&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;section-5&quot;&gt;8. 字符串模板&lt;/h4&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Chen,Hao&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;section-6&quot;&gt;9. 循环和遍历&lt;/h4&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+	
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+	
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+	
+&lt;span class=&quot;n&quot;&gt;__method__&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;num&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;num&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;num&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__condition__&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;section-7&quot;&gt;10. 数组声明与访问&lt;/h4&gt;
+
+&lt;p&gt;声明&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+		&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
+		&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
+		&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
+		&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;访问&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;单索引访问：&lt;code&gt;arr[0]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;区间访问&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;arr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;arr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;aarr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;section-8&quot;&gt;11. 特殊操作符&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;@&lt;/strong&gt; =&amp;gt; &lt;em&gt;this&lt;/em&gt;,常用于类的实例变量或者方法声明中，作为this 关键字的缩写。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;::&lt;/strong&gt; =&amp;gt; &lt;em&gt;prototype&lt;/em&gt; ，常用语类的静态变量或者方法申明中，作为prototype关键字的缩写。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;?&lt;/strong&gt;:  存在操作符，若前面返回对象不为&lt;em&gt;null&lt;/em&gt;,”“或者undefined的条件下，继续执行，否则返回 &lt;em&gt;undefined&lt;/em&gt; 。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;section-9&quot;&gt;12. 类定义与使用&lt;/h4&gt;
+
+&lt;p&gt;关键字：&lt;code&gt;class&lt;/code&gt;,&lt;code&gt;@property&lt;/code&gt;,&lt;code&gt;@method&lt;/code&gt;&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>关于本站</title>
+   <link href="http://www.haoch.me/articles/site-building.html"/>
+   <updated>2013-09-03T00:00:00+00:00</updated>
+   <id>http://www.haoch.me/articles/site-building</id>
+   <content type="html">&lt;p&gt;本站的建立得益于多种开源免费的软件或服务，正因为如此强大的开源社区文化，如此多拥有开源共享精神的天才工程师们，才能创建如此多优秀的开源软件服务大众。&lt;/p&gt;
+
+&lt;h2 id=&quot;jekyll&quot;&gt;页面生成器 - Jekyll&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;http://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt;&lt;/strong&gt;,这是一个精简的可适用于博客的静态站点生成器，由Github 联合创始人之一 &lt;a href=&quot;https://github.com/mojombo/&quot;&gt;Tom Preston-Werner&lt;/a&gt; 利用ruby开发，提供功能完善的静态页面模版和编程框架，目前社区较为活跃，许多非常不错的扩展或分支不断发展中，如&lt;a href=&quot;jekyllbootstrap.com/&quot;&gt;Jekyll-Bootstrap&lt;/a&gt;等，Gsithub page同样基于Jekyll。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://jekyllrb.com/img/logo-2x.png&quot; alt=&quot;Jekyll&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;jekyll---so-simple-jekyll-theme&quot;&gt;Jekyll主题 - So simple jekyll theme&lt;/h2&gt;
+&lt;p&gt;本站主题基于&lt;strong&gt;&lt;a href=&quot;http://mademistakes.com/articles/so-simple-jekyll-theme.html&quot;&gt;So simple Jekyll&lt;/a&gt;&lt;/strong&gt;修改，感谢 &lt;a href=&quot;https://github.com/mmistakes&quot;&gt;Michael Rose&lt;/a&gt;独特而具有品位的设计 ，该主题以黑白为基调，幽雅纯粹，纯文本为内容，页面元素朴质，非常符合个人的审美和分享真实有价值内容的初衷。
+&lt;img src=&quot;/images/so-simple-theme-preview.jpg&quot; alt=&quot;so-simple-theme-preview&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;github-page&quot;&gt;部署 - Github Page&lt;/h2&gt;
+&lt;p&gt;本站部署基于&lt;a href=&quot;https://help.github.com/articles/using-jekyll-with-pages&quot;&gt;Github Page&lt;/a&gt; 服务原生运行于Jekyll 之上，Repository中的内容通过Jekyll解析后生成HTML页面然后展示出来，当只有静态页面或者文件时，可作为静态服务器使用，但同时因为可以利用Ruby结合Jekyll编程，所以也可以根据需求去自定义定制和扩展网站的功能，同时Github的核心git repository可以提供非常强劲的版本控制功能。&lt;/p&gt;
+
+&lt;h2 id=&quot;dns----github-dns&quot;&gt;DNS域名  - Github DNS&lt;/h2&gt;
+&lt;p&gt;Github Page 免费提供以&lt;code&gt;{USERNAME}.github.com&lt;/code&gt;(或&lt;code&gt;{USERNAME}.github.io&lt;/code&gt;)的二级域名映射至用户特定Repository的服务，只需要创建一个名为&lt;code&gt;{USERNAME}.github.com&lt;/code&gt;(或&lt;code&gt;{USERNAME}.github.io&lt;/code&gt;)的Repository即可，对应的二级域名即会以该Repository作为其根目录。此外Github 还提供&lt;strong&gt;DNS&lt;/strong&gt;映射服务，可以自己拥有的自定义域名指向Github page站点 &lt;a href=&quot;https://help.github.com/articles/setting-up-a-custom-domain-with-pages&quot;&gt;＃&lt;/a&gt;：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;首先设置Gihub Repo：在Github repository的根目录添加文件&lt;code&gt;CNAME&lt;/code&gt;,并输入自定义的域名&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;  example.com
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;然后设置域名DNS：具体设置在于使用&lt;code&gt;顶级域名&lt;/code&gt;还是&lt;code&gt;子域名&lt;/code&gt;。
+    &lt;ul&gt;
+      &lt;li&gt;若是&lt;strong&gt;顶级域名(domain)&lt;/strong&gt;时，应该使用&lt;strong&gt;A记录&lt;/strong&gt;指向&lt;strong&gt;&lt;code&gt;204.232.175.78&lt;/code&gt;&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;若时&lt;strong&gt;子域名(subdomain)&lt;/strong&gt;，最好使用&lt;strong&gt;CNAME&lt;/strong&gt;记录，可以在Github服务器IP改变时，自动适应，而A记录无法自动更新。&lt;/li&gt;
+      &lt;li&gt;当使用自定义域名时,服务器会添加以下&lt;strong&gt;自动跳转&lt;/strong&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;username.github.io&lt;/code&gt; ⇒ &lt;code&gt;example.com&lt;/code&gt; for user pages&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;www.example.com&lt;/code&gt; ⇒ &lt;code&gt;example.com&lt;/code&gt; for top-level domains&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;example.com&lt;/code&gt; ⇒ &lt;code&gt;www.example.com&lt;/code&gt; if the www subdomain is used&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;查看当前DNS状态(DNS更改到最终更新可能需要一天时间，需耐心等待)：&lt;/p&gt;
+
+    &lt;p&gt;&lt;code&gt;$ dig example.com +nostats +nocomments +nocmd&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</content>
+ </entry>
+ 
+</feed>

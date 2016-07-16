@@ -1,0 +1,113 @@
+{
+  "meta":{
+    "url":"http://www.haoch.me",
+    "title":"Hao's Thought Works",
+    "count":10,
+    "link":"http://www.haoch.me/api/latest.json",
+    "description":"Latest 10 posts"
+  },
+ "data":[
+   
+  {
+    "id":"/articles/ruby-with-rvm",
+    "title":"Ruby With RVM",
+    "url":"http://www.haoch.me/articles/ruby-with-rvm.html",
+    "date":"2013-12-13 00:00:00 +0000",
+    "tags":["ruby","rvm",null],
+    "previous":{"id":"/articles/practical-pig","url":"http://www.haoch.me/articles/practical-pig.html"},
+    "next":{"id":"","url":"http://www.haoch.me"}
+  },
+   
+  {
+    "id":"/articles/practical-pig",
+    "title":"Practical Pig Tutorial",
+    "url":"http://www.haoch.me/articles/practical-pig.html",
+    "date":"2013-12-13 00:00:00 +0000",
+    "tags":["hadoop","pig",null],
+    "previous":{"id":"/articles/new-hadoop-committer","url":"http://www.haoch.me/articles/new-hadoop-committer.html"},
+    "next":{"id":"/articles/ruby-with-rvm","url":"http://www.haoch.me/articles/ruby-with-rvm.html"}
+  },
+   
+  {
+    "id":"/articles/new-hadoop-committer",
+    "title":"2013 New Apache Hadoop Committer",
+    "url":"http://www.haoch.me/articles/new-hadoop-committer.html",
+    "date":"2013-12-13 00:00:00 +0000",
+    "tags":["hadoop","community","apache","news","maillist",null],
+    "previous":{"id":"/articles/bash-options","url":"http://www.haoch.me/articles/bash-options.html"},
+    "next":{"id":"/articles/practical-pig","url":"http://www.haoch.me/articles/practical-pig.html"}
+  },
+   
+  {
+    "id":"/articles/bash-options",
+    "title":"Bash Options",
+    "url":"http://www.haoch.me/articles/bash-options.html",
+    "date":"2013-12-11 00:00:00 +0000",
+    "tags":["linux","shell","bash","cn",null],
+    "previous":{"id":"/articles/slideshow","url":"http://www.haoch.me/articles/slideshow.html"},
+    "next":{"id":"/articles/new-hadoop-committer","url":"http://www.haoch.me/articles/new-hadoop-committer.html"}
+  },
+   
+  {
+    "id":"/articles/slideshow",
+    "title":"Slide Show (S9) - A Free Web Alternative to PowerPoint and Keynote in Ruby",
+    "url":"http://www.haoch.me/articles/slideshow.html",
+    "date":"2013-11-20 00:00:00 +0000",
+    "tags":["app","ruby","gem",null],
+    "previous":{"id":"/articles/intro-to-cron","url":"http://www.haoch.me/articles/intro-to-cron.html"},
+    "next":{"id":"/articles/bash-options","url":"http://www.haoch.me/articles/bash-options.html"}
+  },
+   
+  {
+    "id":"/articles/intro-to-cron",
+    "title":"Cron作业调度",
+    "url":"http://www.haoch.me/articles/intro-to-cron.html",
+    "date":"2013-10-22 00:00:00 +0000",
+    "tags":["linux","sysadmin",null],
+    "previous":{"id":"/articles/build-maven-repo-on-github","url":"http://www.haoch.me/articles/build-maven-repo-on-github.html"},
+    "next":{"id":"/articles/slideshow","url":"http://www.haoch.me/articles/slideshow.html"}
+  },
+   
+  {
+    "id":"/articles/build-maven-repo-on-github",
+    "title":"基于Github搭建Maven仓库",
+    "url":"http://www.haoch.me/articles/build-maven-repo-on-github.html",
+    "date":"2013-10-11 00:00:00 +0000",
+    "tags":["maven","github",null],
+    "previous":{"id":"/articles/java-string","url":"http://www.haoch.me/articles/java-string.html"},
+    "next":{"id":"/articles/intro-to-cron","url":"http://www.haoch.me/articles/intro-to-cron.html"}
+  },
+   
+  {
+    "id":"/articles/java-string",
+    "title":"Java String 内存模型",
+    "url":"http://www.haoch.me/articles/java-string.html",
+    "date":"2013-09-28 00:00:00 +0000",
+    "tags":["java","String",null],
+    "previous":{"id":"/articles/a-little-cup-of-coffee","url":"http://www.haoch.me/articles/a-little-cup-of-coffee.html"},
+    "next":{"id":"/articles/build-maven-repo-on-github","url":"http://www.haoch.me/articles/build-maven-repo-on-github.html"}
+  },
+   
+  {
+    "id":"/articles/a-little-cup-of-coffee",
+    "title":"A little cup of CoffeeScript",
+    "url":"http://www.haoch.me/articles/a-little-cup-of-coffee.html",
+    "date":"2013-09-21 00:00:00 +0000",
+    "tags":["coffeescript",null],
+    "previous":{"id":"/articles/site-building","url":"http://www.haoch.me/articles/site-building.html"},
+    "next":{"id":"/articles/java-string","url":"http://www.haoch.me/articles/java-string.html"}
+  },
+   
+  {
+    "id":"/articles/site-building",
+    "title":"关于本站",
+    "url":"http://www.haoch.me/articles/site-building.html",
+    "date":"2013-09-03 00:00:00 +0000",
+    "tags":["jekyll","github",null],
+    "previous":{"id":"","url":"http://www.haoch.me"},
+    "next":{"id":"/articles/a-little-cup-of-coffee","url":"http://www.haoch.me/articles/a-little-cup-of-coffee.html"}
+  },
+   
+  null
+  ]
+}

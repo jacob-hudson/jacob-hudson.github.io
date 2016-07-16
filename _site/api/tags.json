@@ -1,0 +1,1727 @@
+{
+  "meta":{
+    "url":"http://www.haoch.me",
+    "title":"Hao's Thought Works",
+    "count":21,
+    "link":"http://www.haoch.me/api/tags.json",
+    "description":"all tags list"
+  },
+  "data":[
+    
+      
+         
+        {
+          "tag": "jekyll",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/site-building", "url":"http://www.haoch.me/articles/site-building.html" },
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "github",
+          "site":2,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/build-maven-repo-on-github", "url":"http://www.haoch.me/articles/build-maven-repo-on-github.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/site-building", "url":"http://www.haoch.me/articles/site-building.html" },
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "coffeescript",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/a-little-cup-of-coffee", "url":"http://www.haoch.me/articles/a-little-cup-of-coffee.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "java",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/java-string", "url":"http://www.haoch.me/articles/java-string.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "String",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/java-string", "url":"http://www.haoch.me/articles/java-string.html" },
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "maven",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/build-maven-repo-on-github", "url":"http://www.haoch.me/articles/build-maven-repo-on-github.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "linux",
+          "site":2,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/bash-options", "url":"http://www.haoch.me/articles/bash-options.html" },
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/intro-to-cron", "url":"http://www.haoch.me/articles/intro-to-cron.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "sysadmin",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/intro-to-cron", "url":"http://www.haoch.me/articles/intro-to-cron.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "app",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/slideshow", "url":"http://www.haoch.me/articles/slideshow.html" },
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "ruby",
+          "site":2,
+          "post":[
+             
+               
+                
+                  { "id":"/articles/ruby-with-rvm", "url":"http://www.haoch.me/articles/ruby-with-rvm.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/slideshow", "url":"http://www.haoch.me/articles/slideshow.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "gem",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+                  { "id":"/articles/slideshow", "url":"http://www.haoch.me/articles/slideshow.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "shell",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/bash-options", "url":"http://www.haoch.me/articles/bash-options.html" },
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "bash",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+                  { "id":"/articles/bash-options", "url":"http://www.haoch.me/articles/bash-options.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "cn",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+                  { "id":"/articles/bash-options", "url":"http://www.haoch.me/articles/bash-options.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "hadoop",
+          "site":2,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/practical-pig", "url":"http://www.haoch.me/articles/practical-pig.html" },
+                
+               
+                
+               
+             
+               
+                
+                  { "id":"/articles/new-hadoop-committer", "url":"http://www.haoch.me/articles/new-hadoop-committer.html" },
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "community",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/new-hadoop-committer", "url":"http://www.haoch.me/articles/new-hadoop-committer.html" },
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "apache",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+                  { "id":"/articles/new-hadoop-committer", "url":"http://www.haoch.me/articles/new-hadoop-committer.html" },
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "news",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+                  { "id":"/articles/new-hadoop-committer", "url":"http://www.haoch.me/articles/new-hadoop-committer.html" },
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "maillist",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+                  { "id":"/articles/new-hadoop-committer", "url":"http://www.haoch.me/articles/new-hadoop-committer.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "pig",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+                  { "id":"/articles/practical-pig", "url":"http://www.haoch.me/articles/practical-pig.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+         
+        {
+          "tag": "rvm",
+          "site":1,
+          "post":[
+             
+               
+                
+               
+                
+                  { "id":"/articles/ruby-with-rvm", "url":"http://www.haoch.me/articles/ruby-with-rvm.html" },
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+                
+               
+             
+               
+                
+               
+             
+               
+                
+               
+                
+               
+            
+            null
+          ]
+        },
+        
+      
+    
+    null
+  ]
+}
+

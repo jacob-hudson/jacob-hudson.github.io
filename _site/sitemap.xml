@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>http://www.haoch.me</loc>
+    </url>
+    
+    
+    <url>
+        <loc>http://www.haoch.me/articles/ruby-with-rvm.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/practical-pig.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/new-hadoop-committer.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/bash-options.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/slideshow.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/intro-to-cron.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/build-maven-repo-on-github.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/java-string.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/a-little-cup-of-coffee.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://www.haoch.me/articles/site-building.html</loc>
+    </url>
+    
+</urlset>
