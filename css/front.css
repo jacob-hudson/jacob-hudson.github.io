@@ -1,7 +1,7 @@
 body {
     font-family: 'Open Sans',Helvetica,Arial,sans-serif;
     background-color: rgba(0, 0, 0, 0.9);
-    position: absolute; 
+    position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
@@ -33,6 +33,12 @@ h1 {
     margin: -10px 0;
 }
 h3 {
+    color: white;
+    padding-bottom: 20px;
+    font-weight: thin;
+}
+
+h5 {
     color: white;
     padding-bottom: 20px;
     font-weight: thin;
