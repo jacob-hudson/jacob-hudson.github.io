@@ -13,7 +13,7 @@ github_username:  jacob-hudson
 #vk_username: your_vk_username_goes_here
 #twitter_username: your_twitter_username_goes_here
 #google_plus_username: your_google_plus_username_goes_here
-linkedin_username: hudsonjacob
+linkedin_username: jacob_hudson
 #vine_username:  your_vine_username_goes_here
 #instagram_username:  your_instagram_username_goes_here
 #flickr_username: your_flickr_username_goes_here
@@ -21,13 +21,13 @@ linkedin_username: hudsonjacob
 #soundcloud_username:  your_soundcloud_username_goes_here
 #stack_of_username: your_stack_overflow_account_id_number_goes_here
 #reddit_username: your_reddit_username_goes_here
-#medium_username:  your_medium_username_goes_here
+medium_username:  your_medium_username_goes_here
 #tumblr_username: your_tumblr_username_goes_here
 #weibo_username: your_weibo_username_goes_here
 #lastfm_username: your_lastfm_username_goes_here
-#blog_url: "/blog"
+blog_url: "/blog"
 email: jacob.alan.hudson@gmail.com
-#public_key_url: "https://raw.pastebin.com/LINK-TO-PUBLIC-KEY"
+public_key_url: "https://raw.pastebin.com/LINK-TO-PUBLIC-KEY"
 
 
 avatar: yes
