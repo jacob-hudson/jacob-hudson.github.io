@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Bulk DynamoDB Population with Terraform"
-date:   2020-04-026 18:24:27 -0500
+date:   2020-04-27 18:24:27 -0500
 categories: terraform aws dynamodb
 ---
 # Overview
