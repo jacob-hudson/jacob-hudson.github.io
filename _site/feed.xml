@@ -1,1 +1,405 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.6">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-04-26T21:53:45-05:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Jacob A. Hudson</title><subtitle>All blog posts are available in GitHub and mirrored to Medium and DEV Community</subtitle></feed>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.6">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-04-28T17:36:33-05:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Jacob A. Hudson</title><subtitle>All blog posts are available in GitHub and mirrored to Medium and DEV Community</subtitle><entry><title type="html">Bulk DynamoDB Item Upload with Terraform</title><link href="http://localhost:4000/terraform/aws/dynamodb/2020/04/27/terraform-bulk-upload.html" rel="alternate" type="text/html" title="Bulk DynamoDB Item Upload with Terraform" /><published>2020-04-27T18:24:27-05:00</published><updated>2020-04-27T18:24:27-05:00</updated><id>http://localhost:4000/terraform/aws/dynamodb/2020/04/27/terraform-bulk-upload</id><content type="html" xml:base="http://localhost:4000/terraform/aws/dynamodb/2020/04/27/terraform-bulk-upload.html">&lt;h1 id=&quot;overview&quot;&gt;Overview&lt;/h1&gt;
+
+&lt;p&gt;DynamoDB is great!  It can be used for routing and metadata table, be used to lock Terraform State files, track states of applications and much more!  This post will offer a solution for populating multiple items (rows) of data within a DynamoDB table at create-time, entirely within Terraform.&lt;/p&gt;
+
+&lt;p&gt;The issue I am looking to solve here is to provision a DynamoDB lookup table entirely from Terraform, without involving extra steps that Terraform can not invoke, without a ton of extra work, and something that can be easily re-producible and scalable.&lt;/p&gt;
+
+&lt;p&gt;The code is available here for those who just want to get to the solution is in the github at the bottom of the post.  I am using version 0.12.24, but anything 0.12+ should work without issue.  In addition, the AWS User/Role to run this configuration also needs to be able to use &lt;code class=&quot;highlighter-rouge&quot;&gt;dynamodb:CreateTable&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;dynamodb:BatchWriteItem&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Requirements:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;It has to be able to be invoked form Terraform&lt;/li&gt;
+  &lt;li&gt;It has to be able to be committed in Version Control&lt;/li&gt;
+  &lt;li&gt;It has to work on any number of items for DynamoDB&lt;/li&gt;
+  &lt;li&gt;Ideally, no other dependencies should be needed&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Knowledge Needed:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;DynamoDB - Items&lt;/li&gt;
+  &lt;li&gt;Terraform - Basics of Resources and Provisioners&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;current-problem&quot;&gt;Current Problem&lt;/h1&gt;
+
+&lt;p&gt;Provisioning an empty DynamoDB table in Terraform is quite easy, an example Terraform Configuration is below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-hcl&quot; data-lang=&quot;hcl&quot;&gt;&lt;span class=&quot;nx&quot;&gt;resource&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;aws_dynamodb_table&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;basic-dynamodb-table&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;           &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;GameScores&quot;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;billing_mode&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;PROVISIONED&quot;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;read_capacity&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;write_capacity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;hash_key&lt;/span&gt;       &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;attribute&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+
+  &lt;span class=&quot;nx&quot;&gt;tags&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;Name&lt;/span&gt;        &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;dynamodb-table-1&quot;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;Environment&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;production&quot;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.terraform.io/docs/providers/aws/r/dynamodb_table.html&quot;&gt;Source&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This resource declaration will result in a blank table, that has to have data loaded later.  HashiCorp does offer a solution for managing DynamoDB Items, as shown below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-hcl&quot; data-lang=&quot;hcl&quot;&gt;&lt;span class=&quot;nx&quot;&gt;resource&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;aws_dynamodb_table_item&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;example&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;table_name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;${aws_dynamodb_table.example.name}&quot;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;hash_key&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;${aws_dynamodb_table.example.hash_key}&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;item&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ITEM&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;
+{
+  &quot;exampleHashKey&quot;: {&quot;S&quot;: &quot;something&quot;},
+  &quot;one&quot;: {&quot;N&quot;: &quot;11111&quot;},
+  &quot;two&quot;: {&quot;N&quot;: &quot;22222&quot;},
+  &quot;three&quot;: {&quot;N&quot;: &quot;33333&quot;},
+  &quot;four&quot;: {&quot;N&quot;: &quot;44444&quot;}
+}
+&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ITEM
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This works quite well, but is limited to one item per Terraform resource.  That does not scale well, and produces massive Terraform Configuration files.  In fact, the Terraform Documentation itself gives the same warning:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Note: This resource is not meant to be used for managing large amounts of data in your table, it is not designed to scale. You should perform regular backups of all data in the table, see AWS docs for more.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This is clearly not an optimal solution, so what can be done?  Let’s see what AWS has to offer, since DynamoDB is an AWS Product.  Scanning through the documentation reveals two possible methods, &lt;code class=&quot;highlighter-rouge&quot;&gt;PutItem&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;BatchWriteItem&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;putitem-vs-batchwriteitem&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;PutItem&lt;/code&gt; vs &lt;code class=&quot;highlighter-rouge&quot;&gt;BatchWriteItem&lt;/code&gt;&lt;/h1&gt;
+
+&lt;p&gt;DynamoDB offers a few methods for writing data to tables, &lt;code class=&quot;highlighter-rouge&quot;&gt;PutItem&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;BatchWriteItem&lt;/code&gt;.  Some key details of each is below:&lt;/p&gt;
+
+&lt;h2 id=&quot;putitem&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;PutItem&lt;/code&gt;&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Is used to upload a single item&lt;/li&gt;
+  &lt;li&gt;Can determine if the field exists before uploading&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;PutItem looks like what the &lt;code class=&quot;highlighter-rouge&quot;&gt;dynamodb_table_item&lt;/code&gt; resource is using in the previous section.  An example is below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;aws dynamodb put-item &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;--table-name&lt;/span&gt; MusicCollection &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;--item&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'{&quot;Artist&quot;: {&quot;S&quot;: &quot;Obscure Indie Band&quot;}}'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;--condition-expression&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;attribute_not_exists(Artist)&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://docs.aws.amazon.com/cli/latest/reference/dynamodb/put-item.html&quot;&gt;Source&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This will add the item above to the MusicCollection table, on the condition the artist does not already exist.  It could be possible to use a loop and define some standard to store multiple items, iterate over each item, and add it to the table; but that seems like a lot of work.  Let’s check out alterantives.&lt;/p&gt;
+
+&lt;h2 id=&quot;batchwriteitem&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;BatchWriteItem&lt;/code&gt;&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Can upload many items to a table at once&lt;/li&gt;
+  &lt;li&gt;Will simply overwrite all items that have matching Primary Keys&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://docs.aws.amazon.com/cli/latest/reference/dynamodb/batch-write-item.html&quot;&gt;Source&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;An example is below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;aws dynamodb batch-write-item &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;--request-items&lt;/span&gt; file://request-items.json&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Here is a snippet of &lt;code class=&quot;highlighter-rouge&quot;&gt;request-items.json&lt;/code&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;MusicCollection&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Artist&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;No One You Know&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;SongTitle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Call Me Today&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;AlbumTitle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Somewhat Famous&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Artist&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Acme Band&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;SongTitle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Happy Day&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;AlbumTitle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Songs About Life&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;(Notice, the table to upload the items to is in the JSON itself).&lt;/p&gt;
+
+&lt;p&gt;The JSON example could be any number of items, it can be contorlled in a version control system, and the documentation gives the following warning about updating items:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;BatchWriteItem cannot update items. To update items, use the UpdateItem action.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;That is not an issue for this case as all data will live inside of one JSON file in Version Control.&lt;/p&gt;
+
+&lt;p&gt;It looks as we have a working solution, as &lt;code class=&quot;highlighter-rouge&quot;&gt;BatchWriteItem&lt;/code&gt; will load as many items into a table as we like, will be able to do everything at once, and we can centralize data management of the table through a JSON file.&lt;/p&gt;
+
+&lt;p&gt;Now, how can we get this to be invoked solely from Terraform?&lt;/p&gt;
+
+&lt;h1 id=&quot;terraform-provisioners&quot;&gt;Terraform Provisioners&lt;/h1&gt;
+
+&lt;p&gt;A provisioner in Terraform allows for the execution of a file into either the local machine running Terraform for the machine Terraform just provisioned. Provisioners can configure infrastructure, typically virtual machines, either on the local node (that is running Terraform) or the remote machine (that Terraform created).  In this case, we will use &lt;code class=&quot;highlighter-rouge&quot;&gt;local-exec&lt;/code&gt;, which will allow running a file on the machine that Terraform is running on.  For more information, check out the &lt;a href=&quot;https://www.terraform.io/docs/provisioners/index.html&quot;&gt;docs&lt;/a&gt; on Provisioners.&lt;/p&gt;
+
+&lt;h1 id=&quot;local-exec-provisioner&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Local-Exec&lt;/code&gt; Provisioner&lt;/h1&gt;
+
+&lt;p&gt;An example of &lt;code class=&quot;highlighter-rouge&quot;&gt;local-exec&lt;/code&gt;, with EC2 in this case, is below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-hcl&quot; data-lang=&quot;hcl&quot;&gt;&lt;span class=&quot;nx&quot;&gt;resource&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;aws_instance&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;web&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;provisioner&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;local-exec&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;echo The server's IP address is ${self.private_ip}&quot;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The example above is for EC2; However, &lt;code class=&quot;highlighter-rouge&quot;&gt;local-exec&lt;/code&gt; can run for any AWS resource, including DynamoDB!&lt;/p&gt;
+
+&lt;h1 id=&quot;solution&quot;&gt;Solution&lt;/h1&gt;
+
+&lt;p&gt;Alright, so we now have the following:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;A Terraform Configuration to Build a DynamoDB Table&lt;/li&gt;
+  &lt;li&gt;A Method for uploading multiple items to said table&lt;/li&gt;
+  &lt;li&gt;A Solution for executing the dataload from Terraform&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The only thing left now is to put everything together!&lt;/p&gt;
+
+&lt;p&gt;I will provision a very simple DynamoDB table, with 1 unit of Read and Write capacity, no encryption, no streams, and no Autoscaling.  Within the DynamoDB resource, I invoke the &lt;code class=&quot;highlighter-rouge&quot;&gt;local-exec&lt;/code&gt; provisioner to kick off a Shell script on the same machine that is running Terraform (which also has the AWSCLI installed), this will run &lt;code class=&quot;highlighter-rouge&quot;&gt;BatchWriteItem&lt;/code&gt; for the table I just created and load all of the sample data.&lt;/p&gt;
+
+&lt;p&gt;Here is the Terraform configuration:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-hcl&quot; data-lang=&quot;hcl&quot;&gt;&lt;span class=&quot;nx&quot;&gt;provider&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;aws&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;region&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;us-east-2&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;resource&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;aws_dynamodb_table&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;basic-dynamodb-table&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt;           &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ExternallyManagedTable&quot;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;billing_mode&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;PROVISIONED&quot;&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;read_capacity&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;write_capacity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;hash_key&lt;/span&gt;       &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;attribute&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;provisioner&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;local-exec&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;bash populate_db.sh&quot;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I have instructed Terraform to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;aws&lt;/code&gt; provider to build a &lt;code class=&quot;highlighter-rouge&quot;&gt;dynamodb&lt;/code&gt; resource, then use the &lt;code class=&quot;highlighter-rouge&quot;&gt;local-exec&lt;/code&gt; provisioner to invoke the shell script below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env bash&lt;/span&gt;
+
+aws dynamodb batch-write-item &lt;span class=&quot;nt&quot;&gt;--request-items&lt;/span&gt; file://items.json&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The shell script references the following JSON:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;ExternallyManagedTable&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;UserId&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Principal Engineer&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;UserId&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;E&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Senior Engineer&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;UserId&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;I&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Mid Level Engineer&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;UserId&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Lead Engineer&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;UserId&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;U&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Associate Engineer&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;PutRequest&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Item&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;UserId&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Y&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;Title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                        &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;S&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Half-Present Intern&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+                &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This will construct our table, which is a simple metadata lookup table for a headless engineering team comprised entirely of vowels!&lt;/p&gt;
+
+&lt;p&gt;To begin, let’s Initialize the Terraform configuration:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+
+The following providers &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;not have any version constraints &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt; constraints to the
+corresponding provider blocks &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;configuration, with the constraint strings
+suggested below.
+
+&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; provider.aws: version &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;~&amp;gt; 2.59&quot;&lt;/span&gt;
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running &lt;span class=&quot;s2&quot;&gt;&quot;terraform plan&quot;&lt;/span&gt; to see
+any changes that are required &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;your infrastructure. All Terraform commands
+should now work.
+
+If you ever &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;or change modules or backend configuration &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;Terraform,
+rerun this &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;so &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;necessary.&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;On to the plan stage:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;terraform plan
+Refreshing Terraform state &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-memory&lt;/span&gt; prior to plan...
+The refreshed state will be used to calculate this plan, but will not be
+persisted to &lt;span class=&quot;nb&quot;&gt;local &lt;/span&gt;or remote state storage.
+
+
+&lt;span class=&quot;nt&quot;&gt;------------------------------------------------------------------------&lt;/span&gt;
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  &lt;span class=&quot;c&quot;&gt;# aws_dynamodb_table.basic-dynamodb-table will be created&lt;/span&gt;
+  + resource &lt;span class=&quot;s2&quot;&gt;&quot;aws_dynamodb_table&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;basic-dynamodb-table&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      + arn              &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      + billing_mode     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;PROVISIONED&quot;&lt;/span&gt;
+      + hash_key         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;
+      + &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;               &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      + name             &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ExternallyManagedTable&quot;&lt;/span&gt;
+      + read_capacity    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 1
+      + stream_arn       &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      + stream_label     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      + stream_view_type &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      + write_capacity   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 1
+
+      + attribute &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          + name &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;
+          + &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+      + point_in_time_recovery &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          + enabled &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+      + server_side_encryption &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          + enabled     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+          + kms_key_arn &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;known after apply&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+&lt;span class=&quot;nt&quot;&gt;------------------------------------------------------------------------&lt;/span&gt;
+
+Note: You didn&lt;span class=&quot;s1&quot;&gt;'t specify an &quot;-out&quot; parameter to save this plan, so Terraform
+can'&lt;/span&gt;t guarantee that exactly these actions will be performed &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;
+&lt;span class=&quot;s2&quot;&gt;&quot;terraform apply&quot;&lt;/span&gt; is subsequently run.&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Finally, time to Apply our configuration and create the table!&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;terraform apply &lt;span class=&quot;nt&quot;&gt;-auto-approve&lt;/span&gt;
+aws_dynamodb_table.basic-dynamodb-table: Creating...
+aws_dynamodb_table.basic-dynamodb-table: Provisioning with &lt;span class=&quot;s1&quot;&gt;'local-exec'&lt;/span&gt;...
+aws_dynamodb_table.basic-dynamodb-table &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;local-exec&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: Executing: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/bin/sh&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;-c&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;bash populate_db.sh&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+aws_dynamodb_table.basic-dynamodb-table &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;local-exec&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+aws_dynamodb_table.basic-dynamodb-table &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;local-exec&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;:     &lt;span class=&quot;s2&quot;&gt;&quot;UnprocessedItems&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+aws_dynamodb_table.basic-dynamodb-table &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;local-exec&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+aws_dynamodb_table.basic-dynamodb-table: Creation &lt;span class=&quot;nb&quot;&gt;complete &lt;/span&gt;after 7s &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ExternallyManagedTable]
+
+Apply &lt;span class=&quot;nb&quot;&gt;complete&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt; Resources: 1 added, 0 changed, 0 destroyed.&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;If you go to the console, or scan the table, you will see all data is present!&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;aws dynamodb scan &lt;span class=&quot;nt&quot;&gt;--table-name&lt;/span&gt; ExternallyManagedTable&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The result should be something like below:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;Items&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Title&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Mid Level Engineer&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;I&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Title&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Principal Engineer&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;UserId&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;S&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;A&quot;&lt;/span&gt;
+...&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;For those new to DynamoDB, the &lt;code class=&quot;highlighter-rouge&quot;&gt;S&lt;/code&gt; is the datatype, String in this case.&lt;/p&gt;
+
+&lt;p&gt;If you have any questions, comments, concerns, or requests as to what Cloud/DevOps/Automation/SRE topics you would me to cover next (I am working out a master list of future posts and will announce it later); thanks again for reading and hopefully this helps improve Terraform/DynamoDB workflows!&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/jacob-hudson/terraform-bulk-upload&quot;&gt;Github Repo&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">Overview</summary></entry></feed>
