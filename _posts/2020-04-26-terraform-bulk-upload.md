@@ -26,7 +26,7 @@ Knowledge Needed:
 
 Provisioning an empty DynamoDB table in Terraform is quite easy, an example Terraform Configuration is below:
 
-{% highlight hcl %}
+```
 resource "aws_dynamodb_table" "basic-dynamodb-table" {
   name           = "GameScores"
   billing_mode   = "PROVISIONED"
@@ -45,13 +45,13 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     Environment = "production"
   }
 }
-{% endhighlight %}
+```
 
 [Source](https://www.terraform.io/docs/providers/aws/r/dynamodb_table.html)
 
 This resource declaration will result in a blank table, that has to have data loaded later.  HashiCorp does offer a solution for managing DynamoDB Items, as shown below:
 
-{% highlight hcl %}
+```
 resource "aws_dynamodb_table_item" "example" {
   table_name = "${aws_dynamodb_table.example.name}"
   hash_key   = "${aws_dynamodb_table.example.hash_key}"
@@ -66,7 +66,7 @@ resource "aws_dynamodb_table_item" "example" {
 }
 ITEM
 }
-{% endhighlight %}
+```
 
 This works quite well, but is limited to one item per Terraform resource.  That does not scale well, and produces massive Terraform Configuration files.  In fact, the Terraform Documentation itself gives the same warning:
 
@@ -86,12 +86,12 @@ DynamoDB offers a few methods for writing data to tables, `PutItem` and `BatchWr
 
 PutItem looks like what the `dynamodb_table_item` resource is using in the previous section.  An example is below:
 
-{% highlight shell %}
+```
 aws dynamodb put-item \
     --table-name MusicCollection \
     --item '{"Artist": {"S": "Obscure Indie Band"}}' \
     --condition-expression "attribute_not_exists(Artist)"
-{% endhighlight %}
+```
 
 
 [Source](https://docs.aws.amazon.com/cli/latest/reference/dynamodb/put-item.html)
@@ -106,13 +106,13 @@ This will add the item above to the MusicCollection table, on the condition the 
 
 An example is below:
 
-{% highlight shell %}
+```
 aws dynamodb batch-write-item \
     --request-items file://request-items.json
-{% endhighlight %}
+```
 
 Here is a snippet of `request-items.json`
-{% highlight json %}
+```
 {
     "MusicCollection": [
         {
@@ -134,7 +134,7 @@ Here is a snippet of `request-items.json`
             }
         },
         ...
-{% endhighlight %}
+```
 
 (Notice, the table to upload the items to is in the JSON itself). 
 
@@ -158,7 +158,7 @@ A provisioner in Terraform allows for the execution of a file into either the lo
 
 An example of `local-exec`, with EC2 in this case, is below:
 
-{% highlight hcl %}
+```
 resource "aws_instance" "web" {
   # ...
 
@@ -166,7 +166,7 @@ resource "aws_instance" "web" {
     command = "echo The server's IP address is ${self.private_ip}"
   }
 }
-{% endhighlight %}
+```
 
 The example above is for EC2; However, `local-exec` can run for any AWS resource, including DynamoDB!
 
@@ -183,7 +183,7 @@ I will provision a very simple DynamoDB table, with 1 unit of Read and Write cap
 
 Here is the Terraform configuration:
 
-{% highlight hcl %}
+```
 provider "aws" {
   region  = "us-east-2"
 }
@@ -204,19 +204,19 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     command = "bash populate_db.sh"
   }
 }
-{% endhighlight %}
+```
 
 I have instructed Terraform to use the `aws` provider to build a `dynamodb` resource, then use the `local-exec` provisioner to invoke the shell script below:
 
-{% highlight shell %}
+```
 #!/usr/bin/env bash
 
 aws dynamodb batch-write-item --request-items file://items.json
-{% endhighlight %}
+```
 
 The shell script references the following JSON:
 
-{% highlight json %}
+```
 {
     "ExternallyManagedTable": [
         {
@@ -293,13 +293,13 @@ The shell script references the following JSON:
         }
     ]
 }
-{% endhighlight %}
+```
 
 This will construct our table, which is a simple metadata lookup table for a headless engineering team comprised entirely of vowels!
 
 To begin, let's Initialize the Terraform configuration:
 
-{% highlight shell %}
+```
 terraform init
 
 Initializing the backend...
@@ -325,11 +325,11 @@ should now work.
 If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
-{% endhighlight %}
+```
 
 On to the plan stage:
 
-{% highlight shell %}
+```
 terraform plan
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
@@ -379,11 +379,11 @@ Plan: 1 to add, 0 to change, 0 to destroy.
 Note: You didn't specify an "-out" parameter to save this plan, so Terraform
 can't guarantee that exactly these actions will be performed if
 "terraform apply" is subsequently run.
-{% endhighlight %}
+```
 
 Finally, time to Apply our configuration and create the table!
 
-{% highlight shell %}
+```
 terraform apply -auto-approve
 aws_dynamodb_table.basic-dynamodb-table: Creating...
 aws_dynamodb_table.basic-dynamodb-table: Provisioning with 'local-exec'...
@@ -394,17 +394,17 @@ aws_dynamodb_table.basic-dynamodb-table (local-exec): }
 aws_dynamodb_table.basic-dynamodb-table: Creation complete after 7s [id=ExternallyManagedTable]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-{% endhighlight %}
+```
 
 If you go to the console, or scan the table, you will see all data is present!
 
-{% highlight shell %}
+```
 aws dynamodb scan --table-name ExternallyManagedTable
-{% endhighlight %}
+```
 
 The result should be something like below:
 
-{% highlight shell %}
+```
 {
     "Items": [
         {
@@ -422,7 +422,7 @@ The result should be something like below:
             "UserId": {
                 "S": "A"
 ...
-{% endhighlight %}
+```
 
 For those new to DynamoDB, the `S` is the datatype, String in this case.  
 
